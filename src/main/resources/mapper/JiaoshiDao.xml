@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.JiaoshiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.jiaoshi_uuid_number as jiaoshiUuidNumber
+        ,a.jiaoshi_name as jiaoshiName
+        ,a.jiaoshi_address as jiaoshiAddress
+        ,a.jiaoshi_content as jiaoshiContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.JiaoshiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM jiaoshi  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.jiaoshiUuidNumber != '' and params.jiaoshiUuidNumber != null and params.jiaoshiUuidNumber != 'null' ">
+                and a.jiaoshi_uuid_number like CONCAT('%',#{params.jiaoshiUuidNumber},'%')
+            </if>
+            <if test=" params.jiaoshiName != '' and params.jiaoshiName != null and params.jiaoshiName != 'null' ">
+                and a.jiaoshi_name like CONCAT('%',#{params.jiaoshiName},'%')
+            </if>
+            <if test=" params.jiaoshiAddress != '' and params.jiaoshiAddress != null and params.jiaoshiAddress != 'null' ">
+                and a.jiaoshi_address like CONCAT('%',#{params.jiaoshiAddress},'%')
+            </if>
+            <if test=" params.jiaoshiContent != '' and params.jiaoshiContent != null and params.jiaoshiContent != 'null' ">
+                and a.jiaoshi_content like CONCAT('%',#{params.jiaoshiContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
